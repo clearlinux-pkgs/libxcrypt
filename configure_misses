@@ -1,0 +1,8 @@
+Configure miss: Python 3.>=6 with Passlib
+Configure miss: _ prefix in compiled symbols
+Configure miss: explicit_memset
+Configure miss: gcc option to enable large file support
+Configure miss: ld --wrap
+Configure miss: memset_s
+Configure miss: whether we are compiling with ASan
+Configure miss: x86_64-generic-linux-gnu-file
