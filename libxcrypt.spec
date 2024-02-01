@@ -7,7 +7,7 @@
 #
 Name     : libxcrypt
 Version  : 4.4.36
-Release  : 2
+Release  : 3
 URL      : https://github.com/besser82/libxcrypt/archive/refs/tags/v4.4.36.tar.gz
 Source0  : https://github.com/besser82/libxcrypt/archive/refs/tags/v4.4.36.tar.gz
 Summary  : Extended crypt library for DES, MD5, Blowfish and others
@@ -103,7 +103,7 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1706820069
+export SOURCE_DATE_EPOCH=1706827591
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -154,7 +154,7 @@ FFLAGS="$CLEAR_INTERMEDIATE_FFLAGS"
 FCFLAGS="$CLEAR_INTERMEDIATE_FCFLAGS"
 ASFLAGS="$CLEAR_INTERMEDIATE_ASFLAGS"
 LDFLAGS="$CLEAR_INTERMEDIATE_LDFLAGS"
-export SOURCE_DATE_EPOCH=1706820069
+export SOURCE_DATE_EPOCH=1706827591
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/libxcrypt
 cp %{_builddir}/libxcrypt-%{version}/COPYING.LIB %{buildroot}/usr/share/package-licenses/libxcrypt/01a6b4bf79aca9b556822601186afab86e8c4fbf || :
@@ -174,6 +174,9 @@ popd
 fi
 popd
 %make_install
+## Remove excluded files
+rm -f %{buildroot}*/usr/share/man/man3/crypt.3
+rm -f %{buildroot}*/usr/share/man/man3/crypt_r.3
 
 %files
 %defattr(-,root,root,-)
@@ -186,13 +189,11 @@ popd
 /usr/lib64/libxcrypt.so
 /usr/lib64/pkgconfig/libcrypt.pc
 /usr/lib64/pkgconfig/libxcrypt.pc
-/usr/share/man/man3/crypt.3
 /usr/share/man/man3/crypt_checksalt.3
 /usr/share/man/man3/crypt_gensalt.3
 /usr/share/man/man3/crypt_gensalt_ra.3
 /usr/share/man/man3/crypt_gensalt_rn.3
 /usr/share/man/man3/crypt_preferred_method.3
-/usr/share/man/man3/crypt_r.3
 /usr/share/man/man3/crypt_ra.3
 /usr/share/man/man3/crypt_rn.3
 
