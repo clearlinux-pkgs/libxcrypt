@@ -7,7 +7,7 @@
 #
 Name     : libxcrypt
 Version  : 4.4.36
-Release  : 1
+Release  : 2
 URL      : https://github.com/besser82/libxcrypt/archive/refs/tags/v4.4.36.tar.gz
 Source0  : https://github.com/besser82/libxcrypt/archive/refs/tags/v4.4.36.tar.gz
 Summary  : Extended crypt library for DES, MD5, Blowfish and others
@@ -16,6 +16,12 @@ License  : LGPL-2.1
 Requires: libxcrypt-lib = %{version}-%{release}
 Requires: libxcrypt-license = %{version}-%{release}
 Requires: libxcrypt-man = %{version}-%{release}
+BuildRequires : gcc-dev32
+BuildRequires : gcc-libgcc32
+BuildRequires : gcc-libstdc++32
+BuildRequires : glibc-dev32
+BuildRequires : glibc-libc32
+BuildRequires : pkg-config
 BuildRequires : valgrind
 # Suppress stripping binaries
 %define __strip /bin/true
@@ -41,6 +47,16 @@ Requires: libxcrypt = %{version}-%{release}
 dev components for the libxcrypt package.
 
 
+%package dev32
+Summary: dev32 components for the libxcrypt package.
+Group: Default
+Requires: libxcrypt-lib32 = %{version}-%{release}
+Requires: libxcrypt-dev = %{version}-%{release}
+
+%description dev32
+dev32 components for the libxcrypt package.
+
+
 %package lib
 Summary: lib components for the libxcrypt package.
 Group: Libraries
@@ -48,6 +64,15 @@ Requires: libxcrypt-license = %{version}-%{release}
 
 %description lib
 lib components for the libxcrypt package.
+
+
+%package lib32
+Summary: lib32 components for the libxcrypt package.
+Group: Default
+Requires: libxcrypt-license = %{version}-%{release}
+
+%description lib32
+lib32 components for the libxcrypt package.
 
 
 %package license
@@ -69,13 +94,16 @@ man components for the libxcrypt package.
 %prep
 %setup -q -n libxcrypt-4.4.36
 cd %{_builddir}/libxcrypt-4.4.36
+pushd ..
+cp -a libxcrypt-4.4.36 build32
+popd
 
 %build
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1706812963
+export SOURCE_DATE_EPOCH=1706820069
 export GCC_IGNORE_WERROR=1
 export AR=gcc-ar
 export RANLIB=gcc-ranlib
@@ -93,12 +121,23 @@ LDFLAGS="$CLEAR_INTERMEDIATE_LDFLAGS"
 %autogen --disable-static --enable-obsolete-api=glibc
 make  %{?_smp_mflags}
 
+pushd ../build32/
+export PKG_CONFIG_PATH="/usr/lib32/pkgconfig:/usr/share/pkgconfig"
+ASFLAGS="${CLEAR_INTERMEDIATE_ASFLAGS}${CLEAR_INTERMEDIATE_ASFLAGS:+ }--32"
+CFLAGS="${CLEAR_INTERMEDIATE_CFLAGS}${CLEAR_INTERMEDIATE_CFLAGS:+ }-m32 -mstackrealign"
+CXXFLAGS="${CLEAR_INTERMEDIATE_CXXFLAGS}${CLEAR_INTERMEDIATE_CXXFLAGS:+ }-m32 -mstackrealign"
+LDFLAGS="${CLEAR_INTERMEDIATE_LDFLAGS}${CLEAR_INTERMEDIATE_LDFLAGS:+ }-m32 -mstackrealign"
+%autogen --disable-static --enable-obsolete-api=glibc  --libdir=/usr/lib32 --build=i686-generic-linux-gnu --host=i686-generic-linux-gnu --target=i686-clr-linux-gnu
+make  %{?_smp_mflags}
+popd
 %check
 export LANG=C.UTF-8
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 make %{?_smp_mflags} check
+cd ../build32;
+make %{?_smp_mflags} check || :
 
 %install
 export GCC_IGNORE_WERROR=1
@@ -115,10 +154,25 @@ FFLAGS="$CLEAR_INTERMEDIATE_FFLAGS"
 FCFLAGS="$CLEAR_INTERMEDIATE_FCFLAGS"
 ASFLAGS="$CLEAR_INTERMEDIATE_ASFLAGS"
 LDFLAGS="$CLEAR_INTERMEDIATE_LDFLAGS"
-export SOURCE_DATE_EPOCH=1706812963
+export SOURCE_DATE_EPOCH=1706820069
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/libxcrypt
 cp %{_builddir}/libxcrypt-%{version}/COPYING.LIB %{buildroot}/usr/share/package-licenses/libxcrypt/01a6b4bf79aca9b556822601186afab86e8c4fbf || :
+pushd ../build32/
+%make_install32
+if [ -d  %{buildroot}/usr/lib32/pkgconfig ]
+then
+pushd %{buildroot}/usr/lib32/pkgconfig
+for i in *.pc ; do ln -s $i 32$i ; done
+popd
+fi
+if [ -d %{buildroot}/usr/share/pkgconfig ]
+then
+pushd %{buildroot}/usr/share/pkgconfig
+for i in *.pc ; do ln -s $i 32$i ; done
+popd
+fi
+popd
 %make_install
 
 %files
@@ -142,10 +196,24 @@ cp %{_builddir}/libxcrypt-%{version}/COPYING.LIB %{buildroot}/usr/share/package-
 /usr/share/man/man3/crypt_ra.3
 /usr/share/man/man3/crypt_rn.3
 
+%files dev32
+%defattr(-,root,root,-)
+/usr/lib32/libcrypt.so
+/usr/lib32/libxcrypt.so
+/usr/lib32/pkgconfig/32libcrypt.pc
+/usr/lib32/pkgconfig/32libxcrypt.pc
+/usr/lib32/pkgconfig/libcrypt.pc
+/usr/lib32/pkgconfig/libxcrypt.pc
+
 %files lib
 %defattr(-,root,root,-)
 /usr/lib64/libcrypt.so.1
 /usr/lib64/libcrypt.so.1.1.0
+
+%files lib32
+%defattr(-,root,root,-)
+/usr/lib32/libcrypt.so.1
+/usr/lib32/libcrypt.so.1.1.0
 
 %files license
 %defattr(0644,root,root,0755)
