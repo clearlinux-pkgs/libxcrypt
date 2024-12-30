@@ -10,9 +10,6 @@ Configure miss: explicit_memset
 Configure miss: gcc option to enable large file support
 Configure miss: gcc option to enable large file support
 Configure miss: i686-generic-linux-gnu-file
-Configure miss: ld --wrap
-Configure miss: ld --wrap
-Configure miss: ld --wrap
 Configure miss: memset_s
 Configure miss: memset_s
 Configure miss: memset_s
